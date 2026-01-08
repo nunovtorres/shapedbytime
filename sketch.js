@@ -5,7 +5,7 @@ let themes = [
   { bg: "#000000", txt: "#ffffff" }  // Página 3
 ];
 
-let pageIndex = -1;
+let pageIndex = -1; // COMEÇA NA HOME
 
 // ================== FONT ==================
 let dmSans;
@@ -25,16 +25,17 @@ let timeLetters = [];
 let angle = 0;
 let pivotIndex;
 
+// ================== PÁGINA 3 ==================
+let dragging = false;
+let lastX = 0;
+let lastY = 0;
+
 // ================== SETUP ==================
 function setup() {
   createCanvas(windowWidth, windowHeight);
-
-  // fallback de segurança
-  if (dmSans) {
-    textFont(dmSans);
-  }
-
+  textFont(dmSans);
   textAlign(LEFT, BASELINE);
+
   pivotIndex = pointerText.indexOf("T");
   initTimeLetters();
 }
@@ -65,6 +66,7 @@ function renderHome() {
   background("#b30000");
   fill("#c9a666");
   textFont(dmSans);
+  textAlign(LEFT, BASELINE);
   textSize(36);
 
   let sentence = [
@@ -106,8 +108,11 @@ function drawInlineLink(word, x, y, targetPage) {
     mouseY > y - h &&
     mouseY < y + 6;
 
-  if (hover) drawLiquidWord(word, x, y, 1);
-  else text(word, x, y);
+  if (hover) {
+    drawLiquidWord(word, x, y, 1);
+  } else {
+    text(word, x, y);
+  }
 
   if (hover && mouseIsPressed) setPage(targetPage);
 }
@@ -115,21 +120,25 @@ function drawInlineLink(word, x, y, targetPage) {
 // ================== PÁGINA 1 ==================
 function initPagina1() {
   letters = [];
+
   textFont(dmSans);
+  textAlign(LEFT, BASELINE);
   textSize(28);
 
   let tracking = 10;
   let y = height / 2;
 
   let totalWidth = 0;
-  for (let c of message) totalWidth += textWidth(c) + tracking;
+  for (let i = 0; i < message.length; i++) {
+    totalWidth += textWidth(message[i]) + tracking;
+  }
   totalWidth -= tracking;
 
   let x = (width - totalWidth) / 2;
 
-  for (let c of message) {
+  for (let i = 0; i < message.length; i++) {
     letters.push({
-      char: c,
+      char: message[i],
       ox: x,
       oy: y,
       rx: random(width),
@@ -138,7 +147,7 @@ function initPagina1() {
       y: random(height),
       z: pow(random(), 1.8)
     });
-    x += textWidth(c) + tracking;
+    x += textWidth(message[i]) + tracking;
   }
 }
 
@@ -146,15 +155,31 @@ function renderPagina1() {
   textFont(dmSans);
   fill(themes[0].txt);
 
-  let focus = map(dist(mouseX, mouseY, width/2, height/2), 0, width/3, 1, 0);
+  let centerDist = dist(mouseX, mouseY, width / 2, height / 2);
+  let focus = map(centerDist, 0, width / 3, 3, 0);
   focus = constrain(focus, 0, 1);
 
+  let minSize = 5;
+  let maxSize = 150;
+  let nearSize = 35;
+
   for (let l of letters) {
-    let size = lerp(5, 150, l.z);
+    let depthSize = lerp(minSize, maxSize, l.z);
+
+    let size;
+    if (focus < 0.85) {
+      size = depthSize;
+    } else {
+      let t = map(focus, 0.85, 1, 0, 1);
+      size = lerp(depthSize, nearSize, t);
+    }
     textSize(size);
 
-    l.x = lerp(l.x, lerp(l.rx, l.ox, focus), 0.08);
-    l.y = lerp(l.y, lerp(l.ry, l.oy, focus), 0.08);
+    let targetX = lerp(l.rx, l.ox, focus);
+    let targetY = lerp(l.ry, l.oy, focus);
+
+    l.x = lerp(l.x, targetX, 0.08);
+    l.y = lerp(l.y, targetY, 0.08);
 
     text(l.char, l.x, l.y);
   }
@@ -186,7 +211,8 @@ function renderPagina2() {
   let cx = width / 2;
   let cy = height / 2;
 
-  let focus = map(dist(mouseX, mouseY, cx, cy), 0, width * 0.9, 1, 0);
+  let dCenter = dist(mouseX, mouseY, cx, cy);
+  let focus = map(dCenter, 0, width * 0.9, 1, 0);
   focus = constrain(focus, 0, 1);
 
   angle += 0.003;
@@ -196,8 +222,12 @@ function renderPagina2() {
   rotate(angle);
 
   for (let l of timeLetters) {
-    let x = lerp(l.fx - cx, l.offset, focus);
-    let y = lerp(l.fy - cy, 0, focus);
+    let fx = l.fx + sin(frameCount * 0.01 + l.noise) * 3;
+    let fy = l.fy + cos(frameCount * 0.01 + l.noise) * 3;
+
+    let x = lerp(fx - cx, l.offset, focus);
+    let y = lerp(fy - cy, 0, focus);
+
     text(l.char, x, y);
   }
 
@@ -209,7 +239,7 @@ function drawLiquidWord(word, x, y, strength) {
   let layers = int(map(strength, 0, 1, 2, 5));
   let offsetStep = 0.8;
 
-  drawingContext.filter = `blur(${map(strength, 0, 1, 2, 4)}px)`;
+  drawingContext.filter = `blur(${map(strength, 0, 3, 4, 4)}px)`;
 
   for (let i = 0; i < layers; i++) {
     let o = i * offsetStep;
@@ -225,10 +255,7 @@ function drawLiquidWord(word, x, y, strength) {
 function renderPagina3() {
   background("#6c6b0d");
   fill(214);
-
-  // 👉 FONTE CARREGADA VIA ASSETS (COMPATÍVEL COM TODOS OS BROWSERS)
   textFont(dmSans);
-
   textAlign(LEFT, TOP);
 
   let textBlock = `
@@ -277,6 +304,13 @@ Paul Rand, 1985
     x += wWidth;
   }
 }
+
+// ================== NAVEGAÇÃO ==================
+function setPage(i) {
+  pageIndex = i;
+  if (pageIndex === 0) pagina1Iniciada = false;
+}
+
 // ================== RESIZE ==================
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
