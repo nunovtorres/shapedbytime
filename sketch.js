@@ -1,4 +1,4 @@
- // ================== TEMAS ==================
+/ ================== TEMAS ==================
 let themes = [
   { bg: "#506831", txt: "#f2480c" }, // Página 1
   { bg: "#7c4c13", txt: "#001eff" }, // Página 2
@@ -6,8 +6,6 @@ let themes = [
 ];
 
 let pageIndex = -1; // COMEÇA NA HOME
-let page3Dragging = false;
-let page3LastY = 0;
 
 
 // ================== PÁGINA 1 ==================
@@ -41,19 +39,8 @@ function setup() {
 
 
 // ================== DRAW ==================
-
 function draw() {
-if (pageIndex === 2 && page3Dragging) {
-  let dy = mouseY - page3LastY;
-  page3ScrollTarget += dy;
-  page3LastY = mouseY;
 
-  page3ScrollTarget = constrain(
-    page3ScrollTarget,
-    -page3ContentHeight + height - 40,
-    0
-  );
-}
   // ---------- HOME ----------
   if (pageIndex === -1) {
     renderHome();
@@ -320,9 +307,8 @@ Paul Rand, 1985
   let x = margin;
   let y = 120;
 
-let baseSize = constrain(width * 0.049, 28, 64);
-let lineHeight = baseSize * 1.1;
-
+  let baseSize = 48;
+  let lineHeight = baseSize * 1.1;
   let maxWidth = width - margin * 4;
 
   textSize(baseSize);
@@ -352,15 +338,7 @@ let lineHeight = baseSize * 1.1;
     x += wWidth;
   }
 }
-function mousePressed() {
-  if (pageIndex === 2) {
-    page3Dragging = true;
-    page3LastY = mouseY;
-  }
-}
-function mouseReleased() {
-  page3Dragging = false;
-}
+
 
 
 // ================== NAVEGAÇÃO ==================
@@ -376,15 +354,4 @@ function setPage(i) {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   initTimeLetters();
-}
-function mouseWheel(event) {
-  if (pageIndex === 2) {
-    page3ScrollTarget -= event.delta;
-    page3ScrollTarget = constrain(
-      page3ScrollTarget,
-      -page3ContentHeight + height - 40,
-      0
-    );
-    return false;
-  }
 }
