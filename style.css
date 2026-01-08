@@ -1,0 +1,36 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+  background: #1a1a1a;
+}
+
+/* Container de navegação */
+#nav {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  z-index: 10;
+}
+
+/* Botões vidro */
+#nav button {
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+#nav button:hover {
+  background: rgba(255,255,255,0.25);
+}
