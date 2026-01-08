@@ -7,12 +7,17 @@ let themes = [
 
 let pageIndex = -1; // COMEÇA NA HOME
 
+// ================== FONT ==================
+let dmSans;
+
+function preload() {
+  dmSans = loadFont("assets/fonts/DMSans-Regular.ttf");
+}
 
 // ================== PÁGINA 1 ==================
 let letters = [];
 let message = "TOOLS EXPAND PERSPECTIVE";
 let pagina1Iniciada = false;
-
 
 // ================== PÁGINA 2 ==================
 let pointerText = "TIME REFINES VISION";
@@ -20,23 +25,20 @@ let timeLetters = [];
 let angle = 0;
 let pivotIndex;
 
-
 // ================== PÁGINA 3 ==================
 let dragging = false;
 let lastX = 0;
 let lastY = 0;
 
-
 // ================== SETUP ==================
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  textFont("DM Sans");
+  textFont(dmSans);
   textAlign(LEFT, BASELINE);
 
   pivotIndex = pointerText.indexOf("T");
   initTimeLetters();
 }
-
 
 // ================== DRAW ==================
 function draw() {
@@ -61,11 +63,11 @@ function draw() {
   if (pageIndex === 2) renderPagina3();
 }
 
-
 // ================== HOME ==================
 function renderHome() {
   background("#b30000");
   fill("#c9a666");
+  textFont(dmSans);
   textAlign(LEFT, BASELINE);
   textSize(36);
 
@@ -81,15 +83,13 @@ function renderHome() {
     { word: "US", link: null }
   ];
 
-  // calcular largura total da frase
-let totalWidth = 0;
-for (let item of sentence) {
-  totalWidth += textWidth(item.word + " ");
-}
+  let totalWidth = 0;
+  for (let item of sentence) {
+    totalWidth += textWidth(item.word + " ");
+  }
 
-// posição inicial centrada
-let x = (width - totalWidth) / 2;
-let y = height / 2;
+  let x = (width - totalWidth) / 2;
+  let y = height / 2;
 
   for (let item of sentence) {
     let w = textWidth(item.word + " ");
@@ -106,6 +106,7 @@ let y = height / 2;
 
   drawingContext.filter = "none";
 }
+
 function drawInlineLink(word, x, y, targetPage) {
   let w = textWidth(word);
   let h = textAscent();
@@ -117,7 +118,6 @@ function drawInlineLink(word, x, y, targetPage) {
     mouseY < y + 6;
 
   if (hover) {
-    // força máxima do efeito quando hover
     drawLiquidWord(word, x, y, 1);
   } else {
     text(word, x, y);
@@ -128,28 +128,25 @@ function drawInlineLink(word, x, y, targetPage) {
   }
 }
 
-
 // ================== PÁGINA 1 ==================
 function initPagina1() {
   letters = [];
 
-  textFont("DM Sans");
+  textFont(dmSans);
   textAlign(LEFT, BASELINE);
 
   let baseSize = 28;
   textSize(baseSize);
 
-  let tracking = 10; // espaçamento final entre letras
+  let tracking = 10;
   let y = height / 2;
 
-  // calcular largura total da frase COM tracking
   let totalWidth = 0;
   for (let i = 0; i < message.length; i++) {
     totalWidth += textWidth(message[i]) + tracking;
   }
-  totalWidth -= tracking; // remover tracking extra no fim
+  totalWidth -= tracking;
 
-  // posição inicial perfeitamente centrada
   let x = (width - totalWidth) / 2;
 
   for (let i = 0; i < message.length; i++) {
@@ -157,20 +154,12 @@ function initPagina1() {
 
     letters.push({
       char: message[i],
-
-      // posição final correta (já centrada)
       ox: x,
       oy: y,
-
-      // posição dispersa
       rx: random(width),
       ry: random(height),
-
-      // posição atual
       x: random(width),
       y: random(height),
-
-      // profundidade
       z: pow(random(), 1.8)
     });
 
@@ -178,9 +167,8 @@ function initPagina1() {
   }
 }
 
-
 function renderPagina1() {
-  textFont("DM Sans");
+  textFont(dmSans);
   textAlign(LEFT, BASELINE);
   fill(themes[0].txt);
 
@@ -193,8 +181,6 @@ function renderPagina1() {
   let nearSize = 35;
 
   for (let l of letters) {
-
-    // tamanho baseado na profundidade
     let depthSize = lerp(minSize, maxSize, l.z);
 
     let size;
@@ -206,11 +192,9 @@ function renderPagina1() {
     }
     textSize(size);
 
-    // posição alvo (NÃO adicionar tracking aqui)
     let targetX = lerp(l.rx, l.ox, focus);
     let targetY = lerp(l.ry, l.oy, focus);
 
-    // movimento suave
     l.x = lerp(l.x, targetX, 0.08);
     l.y = lerp(l.y, targetY, 0.08);
 
@@ -218,12 +202,11 @@ function renderPagina1() {
   }
 }
 
-
-
 // ================== PÁGINA 2 ==================
 function initTimeLetters() {
-  textFont("DM Sans");
+  textFont(dmSans);
   textSize(16);
+
   timeLetters = [];
   let spacing = textSize() * 1.5;
 
@@ -239,6 +222,7 @@ function initTimeLetters() {
 }
 
 function renderPagina2() {
+  textFont(dmSans);
   textAlign(CENTER, CENTER);
 
   let cx = width / 2;
@@ -267,13 +251,12 @@ function renderPagina2() {
   pop();
 }
 
-
 // ================== PÁGINA 3 ==================
 function drawLiquidWord(word, x, y, strength) {
   let layers = int(map(strength, 0, 1, 2, 5));
   let offsetStep = 0.8;
 
-  drawingContext.filter = `blur(${map(strength, 0, 3, 4, 4)}px)`;
+  drawingContext.filter = `blur(${map(strength, 0, 1, 2, 4)}px)`;
 
   for (let i = 0; i < layers; i++) {
     let o = i * offsetStep;
@@ -289,7 +272,7 @@ function drawLiquidWord(word, x, y, strength) {
 function renderPagina3() {
   background("#6c6b0d");
   fill(214);
-  textFont("DM Sans");
+  textFont(dmSans);
   textAlign(LEFT, TOP);
 
   let textBlock = `
@@ -297,7 +280,7 @@ Design is an obsession not because it seeks perfection but because it refuses in
 
 The designer’s task is not to invent endlessly but to simplify, to remove what is unnecessary, and to give form to ideas through logic and structure. Design must thoughtfully surround the user’s experience, creating a seamless dialogue between the object and its environment. Obsession in this sense is not excess. It is focus. It is the commitment to coherence and the patience to test an idea until it earns its final form.
 
-Meaning in design emerges through repetition and restraint. Clarity is achieved by revisiting the same principles, questioning every element, and accepting that good design is the result of work, not chance. Without obsession, design loses its purpose and becomes superficial. With it, design becomes timeless.
+Meaning in design emerges through repetition and restraint. Clarity is achieved by revisiting the same principles, questioning every element, and accepting that good design is the result of work, not chance. Without obsession, design loses its purpose and becomes superficial. With it design becomes timeless.
 Paul Rand, 1985
 `;
 
@@ -339,8 +322,6 @@ Paul Rand, 1985
   }
 }
 
-
-
 // ================== NAVEGAÇÃO ==================
 function setPage(i) {
   pageIndex = i;
@@ -348,7 +329,6 @@ function setPage(i) {
     pagina1Iniciada = false;
   }
 }
-
 
 // ================== RESIZE ==================
 function windowResized() {
