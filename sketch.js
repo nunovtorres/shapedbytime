@@ -6,6 +6,8 @@ let themes = [
 ];
 
 let pageIndex = -1; // COMEÇA NA HOME
+let page3Dragging = false;
+let page3LastY = 0;
 
 
 // ================== PÁGINA 1 ==================
@@ -39,8 +41,19 @@ function setup() {
 
 
 // ================== DRAW ==================
-function draw() {
 
+function draw() {
+if (pageIndex === 2 && page3Dragging) {
+  let dy = mouseY - page3LastY;
+  page3ScrollTarget += dy;
+  page3LastY = mouseY;
+
+  page3ScrollTarget = constrain(
+    page3ScrollTarget,
+    -page3ContentHeight + height - 40,
+    0
+  );
+}
   // ---------- HOME ----------
   if (pageIndex === -1) {
     renderHome();
@@ -339,7 +352,15 @@ let lineHeight = baseSize * 1.1;
     x += wWidth;
   }
 }
-
+function mousePressed() {
+  if (pageIndex === 2) {
+    page3Dragging = true;
+    page3LastY = mouseY;
+  }
+}
+function mouseReleased() {
+  page3Dragging = false;
+}
 
 
 // ================== NAVEGAÇÃO ==================
@@ -355,4 +376,15 @@ function setPage(i) {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   initTimeLetters();
+}
+function mouseWheel(event) {
+  if (pageIndex === 2) {
+    page3ScrollTarget -= event.delta;
+    page3ScrollTarget = constrain(
+      page3ScrollTarget,
+      -page3ContentHeight + height - 40,
+      0
+    );
+    return false;
+  }
 }
