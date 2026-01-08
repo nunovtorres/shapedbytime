@@ -6,13 +6,7 @@ let themes = [
 ];
 
 let pageIndex = -1; // COMEÇA NA HOME
-let dmSans;
-let dmSerif;
-function preload() {
-  dmSans = loadFont("assets/fonts/DMSans-Regular.ttf");
-  dmSerif = loadFont("assets/fonts/DMSerifDisplay-Regular.ttf");
-}
-textFont(dmSans);   // páginas 1 e 2 e 3
+
 
 // ================== PÁGINA 1 ==================
 let letters = [];
