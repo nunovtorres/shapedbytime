@@ -305,7 +305,7 @@ Paul Rand, 1985
 
   let margin = 20;
   let x = margin;
-  let y = margin;
+  let y = 120;
 
   let baseSize = 45;
   let lineHeight = baseSize * 1;
