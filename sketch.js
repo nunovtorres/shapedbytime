@@ -307,8 +307,8 @@ Paul Rand, 1985
   let x = margin;
   let y = 120;
 
-  let baseSize = 45;
-  let lineHeight = baseSize * 1.2;
+  let baseSize = 46;
+  let lineHeight = baseSize * 1.1;
   let maxWidth = width - margin * 4;
 
   textSize(baseSize);
