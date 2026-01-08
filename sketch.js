@@ -11,7 +11,7 @@ let pageIndex = -1; // COMEÇA NA HOME
 let dmSans;
 
 function preload() {
-  dmSans = loadFont("assets/fonts/DMSans-Regular.ttf");
+  dmSans = loadFont("assets/fonts/DMSans-VariableFont_opsz,wght.ttf");
 }
 
 // ================== PÁGINA 1 ==================
