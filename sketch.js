@@ -6,7 +6,10 @@ let themes = [
 ];
 
 let pageIndex = -1; // COMEÇA NA HOME
-
+// ================== PÁGINA 3 SCROLL ==================
+let page3Scroll = 0;
+let page3ScrollTarget = 0;
+let page3ContentHeight = 0;
 
 // ================== PÁGINA 1 ==================
 let letters = [];
@@ -291,6 +294,11 @@ function renderPagina3() {
   fill(214);
   textFont("DM Sans");
   textAlign(LEFT, TOP);
+  page3Scroll = lerp(page3Scroll, page3ScrollTarget, 0.15);
+
+push();
+translate(0, page3Scroll);
+
 
   let textBlock = `
 Design is an obsession not because it seeks perfection but because it refuses indifference. It is a continuous process of questioning, refining, and returning to the same problem with greater clarity each time. Design is not decoration, nor is it the result of inspiration alone. It is the outcome of discipline, intention, and repeated decisions made with care.
@@ -336,6 +344,8 @@ Paul Rand, 1985
     }
 
     x += wWidth;
+    pop();
+    page3ContentHeight = y + lineHeight;
   }
 }
 
@@ -355,3 +365,12 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   initTimeLetters();
 }
+
+function mouseWheel(event) {
+  if (pageIndex === 2) {
+    page3ScrollTarget -= event.delta;
+    page3ScrollTarget = constrain(page3ScrollTarget, -page3ContentHeight + height - 40, 0);
+    return false; // impede scroll da página
+  }
+}
+
