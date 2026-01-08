@@ -5,13 +5,13 @@ let themes = [
   { bg: "#000000", txt: "#ffffff" }  // Página 3
 ];
 
-let pageIndex = -1; // COMEÇA NA HOME
+let pageIndex = -1;
 
 // ================== FONT ==================
 let dmSans;
 
 function preload() {
-  dmSans = loadFont("assets/fonts/DMSans-VariableFont_opsz,wght.ttf");
+  dmSans = loadFont("assets/fonts/DMSans-Regular.ttf");
 }
 
 // ================== PÁGINA 1 ==================
@@ -25,17 +25,16 @@ let timeLetters = [];
 let angle = 0;
 let pivotIndex;
 
-// ================== PÁGINA 3 ==================
-let dragging = false;
-let lastX = 0;
-let lastY = 0;
-
 // ================== SETUP ==================
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  textFont(dmSans);
-  textAlign(LEFT, BASELINE);
 
+  // fallback de segurança
+  if (dmSans) {
+    textFont(dmSans);
+  }
+
+  textAlign(LEFT, BASELINE);
   pivotIndex = pointerText.indexOf("T");
   initTimeLetters();
 }
@@ -43,13 +42,11 @@ function setup() {
 // ================== DRAW ==================
 function draw() {
 
-  // ---------- HOME ----------
   if (pageIndex === -1) {
     renderHome();
     return;
   }
 
-  // ---------- OUTRAS PÁGINAS ----------
   background(themes[pageIndex].bg);
   fill(themes[pageIndex].txt);
 
@@ -68,7 +65,6 @@ function renderHome() {
   background("#b30000");
   fill("#c9a666");
   textFont(dmSans);
-  textAlign(LEFT, BASELINE);
   textSize(36);
 
   let sentence = [
@@ -84,27 +80,20 @@ function renderHome() {
   ];
 
   let totalWidth = 0;
-  for (let item of sentence) {
-    totalWidth += textWidth(item.word + " ");
-  }
+  for (let item of sentence) totalWidth += textWidth(item.word + " ");
 
   let x = (width - totalWidth) / 2;
   let y = height / 2;
 
   for (let item of sentence) {
     let w = textWidth(item.word + " ");
-
     if (item.link !== null) {
       drawInlineLink(item.word, x, y, item.link);
     } else {
-      drawingContext.filter = "none";
       text(item.word, x, y);
     }
-
     x += w;
   }
-
-  drawingContext.filter = "none";
 }
 
 function drawInlineLink(word, x, y, targetPage) {
@@ -117,43 +106,30 @@ function drawInlineLink(word, x, y, targetPage) {
     mouseY > y - h &&
     mouseY < y + 6;
 
-  if (hover) {
-    drawLiquidWord(word, x, y, 1);
-  } else {
-    text(word, x, y);
-  }
+  if (hover) drawLiquidWord(word, x, y, 1);
+  else text(word, x, y);
 
-  if (hover && mouseIsPressed) {
-    setPage(targetPage);
-  }
+  if (hover && mouseIsPressed) setPage(targetPage);
 }
 
 // ================== PÁGINA 1 ==================
 function initPagina1() {
   letters = [];
-
   textFont(dmSans);
-  textAlign(LEFT, BASELINE);
-
-  let baseSize = 28;
-  textSize(baseSize);
+  textSize(28);
 
   let tracking = 10;
   let y = height / 2;
 
   let totalWidth = 0;
-  for (let i = 0; i < message.length; i++) {
-    totalWidth += textWidth(message[i]) + tracking;
-  }
+  for (let c of message) totalWidth += textWidth(c) + tracking;
   totalWidth -= tracking;
 
   let x = (width - totalWidth) / 2;
 
-  for (let i = 0; i < message.length; i++) {
-    let charWidth = textWidth(message[i]);
-
+  for (let c of message) {
     letters.push({
-      char: message[i],
+      char: c,
       ox: x,
       oy: y,
       rx: random(width),
@@ -162,41 +138,23 @@ function initPagina1() {
       y: random(height),
       z: pow(random(), 1.8)
     });
-
-    x += charWidth + tracking;
+    x += textWidth(c) + tracking;
   }
 }
 
 function renderPagina1() {
   textFont(dmSans);
-  textAlign(LEFT, BASELINE);
   fill(themes[0].txt);
 
-  let centerDist = dist(mouseX, mouseY, width / 2, height / 2);
-  let focus = map(centerDist, 0, width / 3, 3, 0);
+  let focus = map(dist(mouseX, mouseY, width/2, height/2), 0, width/3, 1, 0);
   focus = constrain(focus, 0, 1);
 
-  let minSize = 5;
-  let maxSize = 150;
-  let nearSize = 35;
-
   for (let l of letters) {
-    let depthSize = lerp(minSize, maxSize, l.z);
-
-    let size;
-    if (focus < 0.85) {
-      size = depthSize;
-    } else {
-      let t = map(focus, 0.85, 1, 0, 1);
-      size = lerp(depthSize, nearSize, t);
-    }
+    let size = lerp(5, 150, l.z);
     textSize(size);
 
-    let targetX = lerp(l.rx, l.ox, focus);
-    let targetY = lerp(l.ry, l.oy, focus);
-
-    l.x = lerp(l.x, targetX, 0.08);
-    l.y = lerp(l.y, targetY, 0.08);
+    l.x = lerp(l.x, lerp(l.rx, l.ox, focus), 0.08);
+    l.y = lerp(l.y, lerp(l.ry, l.oy, focus), 0.08);
 
     text(l.char, l.x, l.y);
   }
@@ -228,8 +186,7 @@ function renderPagina2() {
   let cx = width / 2;
   let cy = height / 2;
 
-  let dCenter = dist(mouseX, mouseY, cx, cy);
-  let focus = map(dCenter, 0, width * 0.9, 1, 0);
+  let focus = map(dist(mouseX, mouseY, cx, cy), 0, width * 0.9, 1, 0);
   focus = constrain(focus, 0, 1);
 
   angle += 0.003;
@@ -239,12 +196,8 @@ function renderPagina2() {
   rotate(angle);
 
   for (let l of timeLetters) {
-    let fx = l.fx + sin(frameCount * 0.01 + l.noise) * 3;
-    let fy = l.fy + cos(frameCount * 0.01 + l.noise) * 3;
-
-    let x = lerp(fx - cx, l.offset, focus);
-    let y = lerp(fy - cy, 0, focus);
-
+    let x = lerp(l.fx - cx, l.offset, focus);
+    let y = lerp(l.fy - cy, 0, focus);
     text(l.char, x, y);
   }
 
@@ -252,82 +205,20 @@ function renderPagina2() {
 }
 
 // ================== PÁGINA 3 ==================
-function drawLiquidWord(word, x, y, strength) {
-  let layers = int(map(strength, 0, 1, 2, 5));
-  let offsetStep = 0.8;
-
-  drawingContext.filter = `blur(${map(strength, 0, 1, 2, 4)}px)`;
-
-  for (let i = 0; i < layers; i++) {
-    let o = i * offsetStep;
-    text(word, x - o, y);
-    text(word, x + o, y);
-    text(word, x, y - o);
-    text(word, x, y + o);
-  }
-
-  drawingContext.filter = "none";
-}
-
 function renderPagina3() {
   background("#6c6b0d");
   fill(214);
   textFont(dmSans);
+  textSize(48);
   textAlign(LEFT, TOP);
 
-  let textBlock = `
-Design is an obsession not because it seeks perfection but because it refuses indifference. It is a continuous process of questioning, refining, and returning to the same problem with greater clarity each time. Design is not decoration, nor is it the result of inspiration alone. It is the outcome of discipline, intention, and repeated decisions made with care.
-
-The designer’s task is not to invent endlessly but to simplify, to remove what is unnecessary, and to give form to ideas through logic and structure. Design must thoughtfully surround the user’s experience, creating a seamless dialogue between the object and its environment. Obsession in this sense is not excess. It is focus. It is the commitment to coherence and the patience to test an idea until it earns its final form.
-
-Meaning in design emerges through repetition and restraint. Clarity is achieved by revisiting the same principles, questioning every element, and accepting that good design is the result of work, not chance. Without obsession, design loses its purpose and becomes superficial. With it design becomes timeless.
-Paul Rand, 1985
-`;
-
-  let words = textBlock.trim().split(/\s+/);
-
-  let margin = 20;
-  let x = margin;
-  let y = 120;
-
-  let baseSize = 48;
-  let lineHeight = baseSize * 1.1;
-  let maxWidth = width - margin * 4;
-
-  textSize(baseSize);
-
-  for (let i = 0; i < words.length; i++) {
-    let w = words[i];
-    let wWidth = textWidth(w + " ");
-
-    if (x + wWidth > margin + maxWidth) {
-      x = margin;
-      y += lineHeight;
-    }
-
-    let cx = x + wWidth / 2;
-    let cy = y + baseSize / 2;
-
-    let d = dist(mouseX, mouseY, cx, cy);
-    let influence = map(d, 0, 100, 1, 0);
-    influence = constrain(influence, 0, 1);
-
-    if (influence > 0.25) {
-      drawLiquidWord(w, x, y, influence);
-    } else {
-      text(w, x, y);
-    }
-
-    x += wWidth;
-  }
+  text("DESIGN IS AN OBSESSION", 40, 120);
 }
 
 // ================== NAVEGAÇÃO ==================
 function setPage(i) {
   pageIndex = i;
-  if (pageIndex === 0) {
-    pagina1Iniciada = false;
-  }
+  if (pageIndex === 0) pagina1Iniciada = false;
 }
 
 // ================== RESIZE ==================
